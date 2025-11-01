@@ -37,7 +37,7 @@
     "tourze/doctrine-snowflake-bundle": "1.0.*",
     "tourze/doctrine-timestamp-bundle": "1.0.*",
     "tourze/easy-admin-menu-bundle": "1.0.*",
-    "tourze/enum-extra": "1.*",
+    "tourze/enum-extra": "1.0.*",
     "tourze/json-rpc-core": "1.0.*",
     "tourze/json-rpc-lock-bundle": "1.0.*",
     "tourze/json-rpc-log-bundle": "0.1.*",
@@ -45,7 +45,7 @@
     "tourze/json-rpc-security-bundle": "1.0.*",
     "tourze/order-core-bundle": "0.0.*",
     "tourze/product-core-bundle": "0.0.*",
-    "tourze/symfony-dependency-service-loader": "1.*",
+    "tourze/symfony-dependency-service-loader": "1.0.*",
     "tourze/tag-manage-bundle": "1.0.*"
   },
   "require-dev": {
