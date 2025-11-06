@@ -15,6 +15,7 @@ use Tourze\ProductCommentBundle\Repository\ProductCommentLikeRepository;
 use Tourze\ProductCoreBundle\Entity\Spu;
 
 /**
+ * @template-extends AbstractRepositoryTestCase<ProductCommentLike>
  * @internal
  */
 #[CoversClass(ProductCommentLikeRepository::class)]

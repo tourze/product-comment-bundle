@@ -87,7 +87,6 @@ final class ReplyProductCommentTest extends AbstractProcedureTestCase
         $result = $this->procedure->execute();
 
         // 验证结果
-        $this->assertIsArray($result);
         $this->assertArrayHasKey('__message', $result);
         $this->assertEquals('回复成功', $result['__message']);
 

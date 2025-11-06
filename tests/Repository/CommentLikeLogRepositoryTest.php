@@ -11,6 +11,7 @@ use Tourze\ProductCommentBundle\Entity\CommentLikeLog;
 use Tourze\ProductCommentBundle\Repository\CommentLikeLogRepository;
 
 /**
+ * @template-extends AbstractRepositoryTestCase<CommentLikeLog>
  * @internal
  */
 #[CoversClass(CommentLikeLogRepository::class)]
@@ -295,7 +296,6 @@ final class CommentLikeLogRepositoryTest extends AbstractRepositoryTestCase
         $repository->saveAll($logs);
 
         foreach ($logs as $log) {
-            $this->assertNotNull($log->getId());
             $repository->remove($log, false);
         }
         $repository->flush();

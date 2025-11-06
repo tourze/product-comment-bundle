@@ -13,6 +13,7 @@ use Tourze\ProductCommentBundle\Repository\ProductCommentRepository;
 use Tourze\ProductCoreBundle\Entity\Spu;
 
 /**
+ * @template-extends AbstractRepositoryTestCase<ProductComment>
  * @internal
  */
 #[CoversClass(ProductCommentRepository::class)]
@@ -593,6 +594,7 @@ final class ProductCommentRepositoryTest extends AbstractRepositoryTestCase
             ->andWhere('c.spu = :spu')
             ->setParameter('spu', $spu)
         ;
+        /** @var ProductComment[] $nullContentComments */
         $nullContentComments = $qb->getQuery()->getResult();
         $this->assertCount(1, $nullContentComments);
 
@@ -602,6 +604,7 @@ final class ProductCommentRepositoryTest extends AbstractRepositoryTestCase
             ->andWhere('c.spu = :spu')
             ->setParameter('spu', $spu)
         ;
+        /** @var ProductComment[] $nullToUserComments */
         $nullToUserComments = $qb2->getQuery()->getResult();
         $this->assertCount(3, $nullToUserComments); // commentWithContent, commentWithoutContent, commentWithoutToUser
 
@@ -611,6 +614,7 @@ final class ProductCommentRepositoryTest extends AbstractRepositoryTestCase
             ->andWhere('c.spu = :spu')
             ->setParameter('spu', $spu)
         ;
+        /** @var ProductComment[] $notNullToUserComments */
         $notNullToUserComments = $qb3->getQuery()->getResult();
         $this->assertCount(1, $notNullToUserComments);
 

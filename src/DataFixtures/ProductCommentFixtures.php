@@ -41,11 +41,11 @@ class ProductCommentFixtures extends Fixture
     {
         $productComment = new ProductComment();
 
-        $productComment->setTopicType($this->faker->randomElement([0, 1, 2]));
+        $productComment->setTopicType($this->faker->numberBetween(0, 2));
         $productComment->setParentId($this->faker->boolean(30) ? $this->faker->numberBetween(1, 50) : 0);
         $productComment->setRootParentId($this->faker->boolean(20) ? $this->faker->numberBetween(1, 20) : 0);
         $productComment->setClientIp($this->faker->ipv4());
-        $productComment->setIsGoods($this->faker->randomElement([0, 1]));
+        $productComment->setIsGoods($this->faker->numberBetween(0, 1));
         $productComment->setState(CommentStateEnum::APPROVED);
         $productComment->setRateNum($this->faker->numberBetween(0, 100));
         $productComment->setLikeNum($this->faker->numberBetween(0, 500));
@@ -62,7 +62,7 @@ class ProductCommentFixtures extends Fixture
             $productComment->setVideo($this->faker->url());
         }
 
-        $productComment->setIsAdmin($this->faker->randomElement([0, 1]));
+        $productComment->setIsAdmin($this->faker->numberBetween(0, 1));
 
         $createTime = $this->faker->dateTimeBetween('-60 days', 'now');
         $productComment->setCreateTime(\DateTimeImmutable::createFromMutable($createTime));

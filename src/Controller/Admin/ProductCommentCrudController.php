@@ -11,6 +11,8 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
+use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Contracts\Field\FieldInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
@@ -367,10 +369,10 @@ final class ProductCommentCrudController extends AbstractCrudController
     }
 
     /**
-     * @param mixed $fields
-     * @param mixed $filters
+     * @param FieldCollection $fields
+     * @param FilterCollection $filters
      */
-    public function createIndexQueryBuilder(SearchDto $searchDto, EntityDto $entityDto, $fields, $filters): QueryBuilder
+    public function createIndexQueryBuilder(SearchDto $searchDto, EntityDto $entityDto, FieldCollection $fields, FilterCollection $filters): QueryBuilder
     {
         return parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters)
             ->select('entity', 'spu', 'sku', 'fromUser')
@@ -391,7 +393,10 @@ final class ProductCommentCrudController extends AbstractCrudController
         assert($entity instanceof ProductComment);
 
         $entity->setState(CommentStateEnum::APPROVED);
-        $this->container->get('doctrine')->getManager()->flush();
+
+        /** @var \Doctrine\Persistence\ManagerRegistry $doctrine */
+        $doctrine = $this->container->get('doctrine');
+        $doctrine->getManager()->flush();
 
         $this->addFlash('success', sprintf('评论 #%s 已批准公开显示', $entity->getId()));
 
@@ -410,7 +415,10 @@ final class ProductCommentCrudController extends AbstractCrudController
         assert($entity instanceof ProductComment);
 
         $entity->setState(CommentStateEnum::REJECTED);
-        $this->container->get('doctrine')->getManager()->flush();
+
+        /** @var \Doctrine\Persistence\ManagerRegistry $doctrine */
+        $doctrine = $this->container->get('doctrine');
+        $doctrine->getManager()->flush();
 
         $this->addFlash('danger', sprintf('评论 #%s 已被拒绝', $entity->getId()));
 
@@ -429,7 +437,10 @@ final class ProductCommentCrudController extends AbstractCrudController
         assert($entity instanceof ProductComment);
 
         $entity->setIsGoods(1);
-        $this->container->get('doctrine')->getManager()->flush();
+
+        /** @var \Doctrine\Persistence\ManagerRegistry $doctrine */
+        $doctrine = $this->container->get('doctrine');
+        $doctrine->getManager()->flush();
 
         $this->addFlash('success', sprintf('评论 #%s 已设为精选', $entity->getId()));
 
@@ -448,7 +459,10 @@ final class ProductCommentCrudController extends AbstractCrudController
         assert($entity instanceof ProductComment);
 
         $entity->setIsGoods(0);
-        $this->container->get('doctrine')->getManager()->flush();
+
+        /** @var \Doctrine\Persistence\ManagerRegistry $doctrine */
+        $doctrine = $this->container->get('doctrine');
+        $doctrine->getManager()->flush();
 
         $this->addFlash('info', sprintf('评论 #%s 已取消精选', $entity->getId()));
 

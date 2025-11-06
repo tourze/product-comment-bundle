@@ -50,7 +50,6 @@ final class GetProductCommentListSimpleTest extends AbstractProcedureTestCase
 
         $result = $this->procedure->execute();
 
-        $this->assertIsArray($result);
         $this->assertArrayHasKey('list', $result);
         $this->assertArrayHasKey('pagination', $result);
         $this->assertIsArray($result['list']);
@@ -93,8 +92,8 @@ final class GetProductCommentListSimpleTest extends AbstractProcedureTestCase
 
         $result = $this->procedure->execute();
 
-        $this->assertIsArray($result);
         $this->assertArrayHasKey('pagination', $result);
+        $this->assertIsArray($result['pagination']);
         $this->assertArrayHasKey('current', $result['pagination']);
         $this->assertArrayHasKey('pageSize', $result['pagination']);
         $this->assertArrayHasKey('total', $result['pagination']);

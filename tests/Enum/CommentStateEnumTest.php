@@ -17,7 +17,6 @@ final class CommentStateEnumTest extends AbstractEnumTestCase
     public function testGenOptions(): void
     {
         $options = CommentStateEnum::genOptions();
-        $this->assertIsArray($options);
         $this->assertCount(count(CommentStateEnum::cases()), $options);
 
         foreach ($options as $item) {
@@ -30,7 +29,6 @@ final class CommentStateEnumTest extends AbstractEnumTestCase
     {
         foreach (CommentStateEnum::cases() as $case) {
             $result = $case->toArray();
-            $this->assertIsArray($result);
             $this->assertArrayHasKey('value', $result);
             $this->assertArrayHasKey('label', $result);
             $this->assertSame($case->value, $result['value']);
