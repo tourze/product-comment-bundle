@@ -295,7 +295,9 @@ final class CommentLikeLogRepositoryTest extends AbstractRepositoryTestCase
 
         $repository->saveAll($logs);
 
+        // 验证所有日志都被正确保存
         foreach ($logs as $log) {
+            $this->assertNotNull($log->getId());
             $repository->remove($log, false);
         }
         $repository->flush();

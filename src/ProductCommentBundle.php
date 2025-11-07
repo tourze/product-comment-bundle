@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tourze\ProductCommentBundle;
 
-use BizUserBundle\BizUserBundle;
 use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
 use OrderCoreBundle\OrderCoreBundle;
 use Symfony\Bundle\SecurityBundle\SecurityBundle;
@@ -36,7 +35,6 @@ class ProductCommentBundle extends Bundle implements BundleDependencyInterface
             DoctrineTimestampBundle::class => ['all' => true],
             JsonRPCSecurityBundle::class => ['all' => true],
             EasyAdminMenuBundle::class => ['all' => true],
-            BizUserBundle::class => ['all' => true],
         ];
     }
 }
