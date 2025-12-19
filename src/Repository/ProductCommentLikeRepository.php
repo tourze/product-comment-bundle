@@ -13,7 +13,7 @@ use Tourze\ProductCommentBundle\Entity\ProductCommentLike;
  * @extends ServiceEntityRepository<ProductCommentLike>
  */
 #[AsRepository(entityClass: ProductCommentLike::class)]
-class ProductCommentLikeRepository extends ServiceEntityRepository
+final class ProductCommentLikeRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {

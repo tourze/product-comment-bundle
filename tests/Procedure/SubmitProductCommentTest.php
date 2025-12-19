@@ -10,7 +10,8 @@ use OrderCoreBundle\Enum\OrderState;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Tourze\JsonRPC\Core\Exception\ApiException;
-use Tourze\JsonRPC\Core\Tests\AbstractProcedureTestCase;
+use Tourze\PHPUnitJsonRPC\AbstractProcedureTestCase;
+use Tourze\ProductCommentBundle\Param\SubmitProductCommentParam;
 use Tourze\ProductCommentBundle\Procedure\SubmitProductComment;
 use Tourze\ProductCoreBundle\Entity\Sku;
 use Tourze\ProductCoreBundle\Entity\Spu;
@@ -32,22 +33,26 @@ final class SubmitProductCommentTest extends AbstractProcedureTestCase
 
     public function testExecuteWithEmptyContent(): void
     {
-        $this->procedure->orderProductId = '123';
-        $this->procedure->content = '   ';
+        $param = new SubmitProductCommentParam(
+            orderProductId: '123',
+            content: '   '
+        );
 
         $this->expectException(ApiException::class);
         $this->expectExceptionMessage('请输入评论内容');
-        $this->procedure->execute();
+        $this->procedure->execute($param);
     }
 
     public function testExecuteWithNonExistentOrderProduct(): void
     {
-        $this->procedure->orderProductId = '999999';
-        $this->procedure->content = '评论内容';
+        $param = new SubmitProductCommentParam(
+            orderProductId: '999999',
+            content: '评论内容'
+        );
 
         $this->expectException(ApiException::class);
         $this->expectExceptionMessage('评论异常');
-        $this->procedure->execute();
+        $this->procedure->execute($param);
     }
 
     public function testExecuteWithoutAuthentication(): void
@@ -83,11 +88,13 @@ final class SubmitProductCommentTest extends AbstractProcedureTestCase
 
         self::getEntityManager()->flush();
 
-        $this->procedure->orderProductId = (string) $orderProduct->getId();
-        $this->procedure->content = '评论内容';
+        $param = new SubmitProductCommentParam(
+            orderProductId: (string) $orderProduct->getId(),
+            content: '评论内容'
+        );
 
         $this->expectException(ApiException::class);
         $this->expectExceptionMessage('用户未登录');
-        $this->procedure->execute();
+        $this->procedure->execute($param);
     }
 }

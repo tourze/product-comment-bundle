@@ -11,12 +11,14 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Tourze\JsonRPC\Core\Attribute\MethodDoc;
 use Tourze\JsonRPC\Core\Attribute\MethodExpose;
-use Tourze\JsonRPC\Core\Attribute\MethodParam;
 use Tourze\JsonRPC\Core\Attribute\MethodTag;
+use Tourze\JsonRPC\Core\Contracts\RpcParamInterface;
 use Tourze\JsonRPC\Core\Exception\ApiException;
+use Tourze\JsonRPC\Core\Result\ArrayResult;
 use Tourze\JsonRPCLockBundle\Procedure\LockableProcedure;
 use Tourze\JsonRPCLogBundle\Attribute\Log;
 use Tourze\ProductCommentBundle\Entity\ProductCommentLike;
+use Tourze\ProductCommentBundle\Param\LikeProductCommentParam;
 use Tourze\ProductCommentBundle\Repository\ProductCommentLikeRepository;
 use Tourze\ProductCommentBundle\Repository\ProductCommentRepository;
 
@@ -26,11 +28,8 @@ use Tourze\ProductCommentBundle\Repository\ProductCommentRepository;
 #[IsGranted(attribute: 'IS_AUTHENTICATED_FULLY')]
 #[Log]
 #[Autoconfigure(public: true)]
-class LikeProductComment extends LockableProcedure
+final class LikeProductComment extends LockableProcedure
 {
-    #[MethodParam(description: '评论id')]
-    public string $contentId;
-
     public function __construct(
         private readonly ProductCommentLikeRepository $productCommentLikeRepository,
         private readonly ProductCommentRepository $productCommentRepository,
@@ -39,7 +38,10 @@ class LikeProductComment extends LockableProcedure
     ) {
     }
 
-    public function execute(): array
+    /**
+     * @phpstan-param LikeProductCommentParam $param
+     */
+    public function execute(LikeProductCommentParam|RpcParamInterface $param): ArrayResult
     {
         $user = $this->security->getUser();
         if (!$user instanceof UserInterface) {
@@ -47,7 +49,7 @@ class LikeProductComment extends LockableProcedure
         }
 
         $productComment = $this->productCommentRepository->findOneBy([
-            'id' => $this->contentId,
+            'id' => $param->contentId,
         ]);
         if (null === $productComment) {
             throw new ApiException('不存在评论');
@@ -68,8 +70,8 @@ class LikeProductComment extends LockableProcedure
         $this->entityManager->persist($productCommentLike);
         $this->entityManager->flush();
 
-        return [
+        return new ArrayResult([
             '__message' => 1 === $productCommentLike->getStatus() ? '点赞成功' : '取消点赞成功',
-        ];
+        ]);
     }
 }

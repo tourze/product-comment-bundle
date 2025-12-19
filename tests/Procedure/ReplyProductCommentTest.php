@@ -13,9 +13,10 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Tourze\JsonRPC\Core\Exception\ApiException;
-use Tourze\JsonRPC\Core\Tests\AbstractProcedureTestCase;
+use Tourze\PHPUnitJsonRPC\AbstractProcedureTestCase;
 use Tourze\ProductCommentBundle\Entity\ProductComment;
 use Tourze\ProductCommentBundle\Enum\CommentStateEnum;
+use Tourze\ProductCommentBundle\Param\ReplyProductCommentParam;
 use Tourze\ProductCommentBundle\Procedure\ReplyProductComment;
 use Tourze\ProductCommentBundle\Repository\ProductCommentRepository;
 use Tourze\ProductCoreBundle\Entity\Spu;
@@ -80,11 +81,13 @@ final class ReplyProductCommentTest extends AbstractProcedureTestCase
         $this->setAuthenticatedUserDirect($replyUser);
 
         // 设置参数
-        $this->procedure->contentId = (string) $originalComment->getId();
-        $this->procedure->content = '这是一条回复评论';
+        $param = new ReplyProductCommentParam(
+            contentId: (string) $originalComment->getId(),
+            content: '这是一条回复评论'
+        );
 
         // 执行回复
-        $result = $this->procedure->execute();
+        $result = $this->procedure->execute($param);
 
         // 验证结果
         $this->assertArrayHasKey('__message', $result);
@@ -163,11 +166,13 @@ final class ReplyProductCommentTest extends AbstractProcedureTestCase
         $this->setAuthenticatedUserDirect($secondReplyUser);
 
         // 回复第一层回复
-        $this->procedure->contentId = (string) $firstReply->getId();
-        $this->procedure->content = '这是对回复的回复';
+        $param = new ReplyProductCommentParam(
+            contentId: (string) $firstReply->getId(),
+            content: '这是对回复的回复'
+        );
 
         // 执行回复
-        $result = $this->procedure->execute();
+        $result = $this->procedure->execute($param);
 
         // 验证结果
         $this->assertEquals('回复成功', $result['__message']);
@@ -189,24 +194,28 @@ final class ReplyProductCommentTest extends AbstractProcedureTestCase
     {
         $user = $this->createNormalUser('test@example.com', 'password123');
 
-        $this->procedure->contentId = '123';
-        $this->procedure->content = '   '; // 空白内容
+        $param = new ReplyProductCommentParam(
+            contentId: '123',
+            content: '   ' // 空白内容
+        );
 
         $this->expectException(ApiException::class);
         $this->expectExceptionMessage('请输入评论内容');
-        $this->procedure->execute();
+        $this->procedure->execute($param);
     }
 
     public function testExecuteWithNonExistentComment(): void
     {
         $user = $this->createNormalUser('test@example.com', 'password123');
 
-        $this->procedure->contentId = '999999';
-        $this->procedure->content = '回复内容';
+        $param = new ReplyProductCommentParam(
+            contentId: '999999',
+            content: '回复内容'
+        );
 
         $this->expectException(ApiException::class);
         $this->expectExceptionMessage('不存在评论');
-        $this->procedure->execute();
+        $this->procedure->execute($param);
     }
 
     public function testExecuteWithoutAuthentication(): void
@@ -245,12 +254,14 @@ final class ReplyProductCommentTest extends AbstractProcedureTestCase
         self::getEntityManager()->persist($comment);
         self::getEntityManager()->flush();
 
-        $this->procedure->contentId = (string) $comment->getId();
-        $this->procedure->content = '回复内容';
+        $param = new ReplyProductCommentParam(
+            contentId: (string) $comment->getId(),
+            content: '回复内容'
+        );
 
         $this->expectException(ApiException::class);
         $this->expectExceptionMessage('用户未登录');
-        $this->procedure->execute();
+        $this->procedure->execute($param);
     }
 
     /**

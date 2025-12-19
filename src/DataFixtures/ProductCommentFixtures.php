@@ -14,7 +14,7 @@ use Tourze\ProductCommentBundle\Enum\CommentStateEnum;
 
 #[When(env: 'test')]
 #[When(env: 'dev')]
-class ProductCommentFixtures extends Fixture
+final class ProductCommentFixtures extends Fixture
 {
     public const PRODUCT_COMMENT_REFERENCE_PREFIX = 'product_comment_';
     public const PRODUCT_COMMENT_COUNT = 100;

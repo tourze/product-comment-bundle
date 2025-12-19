@@ -9,29 +9,26 @@ use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\DependencyInjection\Attribute\When;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Tourze\DoctrineResolveTargetEntityBundle\Service\ResolveTargetEntityService;
 use Tourze\ProductCommentBundle\Entity\ProductComment;
 use Tourze\ProductCommentBundle\Entity\ProductCommentLike;
+use Tourze\UserServiceContracts\UserManagerInterface;
 
 #[When(env: 'test')]
 #[When(env: 'dev')]
-class ProductCommentLikeFixtures extends Fixture implements DependentFixtureInterface
+final class ProductCommentLikeFixtures extends Fixture implements DependentFixtureInterface
 {
     public const PRODUCT_COMMENT_LIKE_REFERENCE_PREFIX = 'product_comment_like_';
     public const PRODUCT_COMMENT_LIKE_COUNT = 200;
 
     public function __construct(
-        private readonly ResolveTargetEntityService $resolveTargetEntityService,
+        private readonly UserManagerInterface $userManager,
     ) {
     }
 
     public function load(ObjectManager $manager): void
     {
-        // 获取用户实体类
-        $userClass = $this->resolveTargetEntityService->findEntityClass(UserInterface::class);
-
         for ($i = 0; $i < self::PRODUCT_COMMENT_LIKE_COUNT; ++$i) {
-            $productCommentLike = $this->createProductCommentLike($manager, $userClass);
+            $productCommentLike = $this->createProductCommentLike();
             $manager->persist($productCommentLike);
             $this->addReference(self::PRODUCT_COMMENT_LIKE_REFERENCE_PREFIX . $i, $productCommentLike);
         }
@@ -39,7 +36,7 @@ class ProductCommentLikeFixtures extends Fixture implements DependentFixtureInte
         $manager->flush();
     }
 
-    private function createProductCommentLike(ObjectManager $manager, string $userClass): ProductCommentLike
+    private function createProductCommentLike(): ProductCommentLike
     {
         $productCommentLike = new ProductCommentLike();
 
@@ -49,23 +46,16 @@ class ProductCommentLikeFixtures extends Fixture implements DependentFixtureInte
             ProductComment::class
         );
 
-        // 创建测试用户
-        $testUser = new $userClass();
-        if (method_exists($testUser, 'setUsername')) {
-            $testUser->setUsername('test_user_' . uniqid());
-        }
-        if (method_exists($testUser, 'setNickName')) {
-            $testUser->setNickName('测试用户 ' . uniqid());
-        }
-        if (method_exists($testUser, 'setValid')) {
-            $testUser->setValid(true);
-        }
-        $manager->persist($testUser);
+        // 通过 UserManager 创建测试用户
+        $uniqueId = uniqid();
+        $testUser = $this->userManager->createUser(
+            userIdentifier: 'test_user_' . $uniqueId,
+            nickName: '测试用户 ' . $uniqueId,
+        );
+        $this->userManager->saveUser($testUser);
 
         $productCommentLike->setProductComment($productComment);
-        if ($testUser instanceof UserInterface) {
-            $productCommentLike->setUser($testUser);
-        }
+        $productCommentLike->setUser($testUser);
         $productCommentLike->setStatus(random_int(0, 1));
 
         $createTime = (new \DateTime())->modify('-' . random_int(1, 30) . ' days');

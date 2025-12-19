@@ -12,13 +12,15 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Tourze\JsonRPC\Core\Attribute\MethodDoc;
 use Tourze\JsonRPC\Core\Attribute\MethodExpose;
-use Tourze\JsonRPC\Core\Attribute\MethodParam;
 use Tourze\JsonRPC\Core\Attribute\MethodTag;
+use Tourze\JsonRPC\Core\Contracts\RpcParamInterface;
 use Tourze\JsonRPC\Core\Exception\ApiException;
+use Tourze\JsonRPC\Core\Result\ArrayResult;
 use Tourze\JsonRPCLockBundle\Procedure\LockableProcedure;
 use Tourze\JsonRPCLogBundle\Attribute\Log;
 use Tourze\ProductCommentBundle\Entity\ProductComment;
 use Tourze\ProductCommentBundle\Enum\CommentStateEnum;
+use Tourze\ProductCommentBundle\Param\ReplyProductCommentParam;
 use Tourze\ProductCommentBundle\Repository\ProductCommentRepository;
 
 #[MethodTag(name: '产品模块')]
@@ -27,14 +29,8 @@ use Tourze\ProductCommentBundle\Repository\ProductCommentRepository;
 #[IsGranted(attribute: 'IS_AUTHENTICATED_FULLY')]
 #[Log]
 #[Autoconfigure(public: true)]
-class ReplyProductComment extends LockableProcedure
+final class ReplyProductComment extends LockableProcedure
 {
-    #[MethodParam(description: '评论id')]
-    public string $contentId;
-
-    #[MethodParam(description: '回复内容')]
-    public string $content;
-
     public function __construct(
         private readonly ProductCommentRepository $productCommentRepository,
         private readonly RequestStack $requestStack,
@@ -43,15 +39,18 @@ class ReplyProductComment extends LockableProcedure
     ) {
     }
 
-    public function execute(): array
+    /**
+     * @phpstan-param ReplyProductCommentParam $param
+     */
+    public function execute(ReplyProductCommentParam|RpcParamInterface $param): ArrayResult
     {
-        $content = trim($this->content);
+        $content = trim($param->content);
         if ('' === $content) {
             throw new ApiException('请输入评论内容');
         }
 
         $productComment = $this->productCommentRepository->findOneBy([
-            'id' => $this->contentId,
+            'id' => $param->contentId,
         ]);
         if (null === $productComment) {
             throw new ApiException('不存在评论');
@@ -77,8 +76,8 @@ class ReplyProductComment extends LockableProcedure
         $this->entityManager->persist($replyComment);
         $this->entityManager->flush();
 
-        return [
+        return new ArrayResult([
             '__message' => '回复成功',
-        ];
+        ]);
     }
 }

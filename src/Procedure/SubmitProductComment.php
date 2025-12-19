@@ -13,13 +13,15 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Tourze\JsonRPC\Core\Attribute\MethodDoc;
 use Tourze\JsonRPC\Core\Attribute\MethodExpose;
-use Tourze\JsonRPC\Core\Attribute\MethodParam;
 use Tourze\JsonRPC\Core\Attribute\MethodTag;
+use Tourze\JsonRPC\Core\Contracts\RpcParamInterface;
 use Tourze\JsonRPC\Core\Exception\ApiException;
+use Tourze\JsonRPC\Core\Result\ArrayResult;
 use Tourze\JsonRPCLockBundle\Procedure\LockableProcedure;
 use Tourze\JsonRPCLogBundle\Attribute\Log;
 use Tourze\ProductCommentBundle\Entity\ProductComment;
 use Tourze\ProductCommentBundle\Enum\CommentStateEnum;
+use Tourze\ProductCommentBundle\Param\SubmitProductCommentParam;
 use Tourze\ProductCommentBundle\Repository\ProductCommentRepository;
 
 #[MethodTag(name: '产品模块')]
@@ -28,20 +30,8 @@ use Tourze\ProductCommentBundle\Repository\ProductCommentRepository;
 #[IsGranted(attribute: 'IS_AUTHENTICATED_FULLY')]
 #[Log]
 #[Autoconfigure(public: true)]
-class SubmitProductComment extends LockableProcedure
+final class SubmitProductComment extends LockableProcedure
 {
-    #[MethodParam(description: '订单商品id')]
-    public string $orderProductId;
-
-    #[MethodParam(description: '评论内容')]
-    public string $content;
-
-    /**
-     * @var list<string>|null
-     */
-    #[MethodParam(description: '评论图片')]
-    public ?array $images = null;
-
     public function __construct(
         private readonly OrderProductRepository $orderProductRepository,
         private readonly ProductCommentRepository $productCommentRepository,
@@ -51,15 +41,18 @@ class SubmitProductComment extends LockableProcedure
     ) {
     }
 
-    public function execute(): array
+    /**
+     * @phpstan-param SubmitProductCommentParam $param
+     */
+    public function execute(SubmitProductCommentParam|RpcParamInterface $param): ArrayResult
     {
-        $content = trim($this->content);
+        $content = trim($param->content);
         if ('' === $content) {
             throw new ApiException('请输入评论内容');
         }
 
         $orderProduct = $this->orderProductRepository->findOneBy([
-            'id' => $this->orderProductId,
+            'id' => $param->orderProductId,
         ]);
         if (null === $orderProduct) {
             throw new ApiException('评论异常');
@@ -96,13 +89,13 @@ class SubmitProductComment extends LockableProcedure
         $productComment->setParentId(0);
         $productComment->setState(CommentStateEnum::APPROVED);
         $productComment->setTopicType(1);
-        $productComment->setImages($this->images);
+        $productComment->setImages($param->images);
         $productComment->setClientIp($this->requestStack->getMainRequest()?->getClientIp() ?? '');
         $this->entityManager->persist($productComment);
         $this->entityManager->flush();
 
-        return [
+        return new ArrayResult([
             '__message' => '评论成功',
-        ];
+        ]);
     }
 }

@@ -17,7 +17,7 @@ use Tourze\JsonRPCPaginatorBundle\JsonRPCPaginatorBundle;
 use Tourze\JsonRPCSecurityBundle\JsonRPCSecurityBundle;
 use Tourze\ProductCoreBundle\ProductCoreBundle;
 
-class ProductCommentBundle extends Bundle implements BundleDependencyInterface
+final class ProductCommentBundle extends Bundle implements BundleDependencyInterface
 {
     /**
      * @return array<class-string<Bundle>, array<string, bool>>

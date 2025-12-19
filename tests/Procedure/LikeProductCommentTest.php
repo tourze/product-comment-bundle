@@ -10,10 +10,11 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Tourze\JsonRPC\Core\Exception\ApiException;
-use Tourze\JsonRPC\Core\Tests\AbstractProcedureTestCase;
+use Tourze\PHPUnitJsonRPC\AbstractProcedureTestCase;
 use Tourze\ProductCommentBundle\Entity\ProductComment;
 use Tourze\ProductCommentBundle\Entity\ProductCommentLike;
 use Tourze\ProductCommentBundle\Enum\CommentStateEnum;
+use Tourze\ProductCommentBundle\Param\LikeProductCommentParam;
 use Tourze\ProductCommentBundle\Procedure\LikeProductComment;
 use Tourze\ProductCommentBundle\Repository\ProductCommentLikeRepository;
 use Tourze\ProductCoreBundle\Entity\Spu;
@@ -57,10 +58,12 @@ final class LikeProductCommentTest extends AbstractProcedureTestCase
         // 设置参数
         $commentId = $comment->getId();
         $this->assertNotNull($commentId, 'Comment ID should not be null after persist and flush');
-        $this->procedure->contentId = $commentId;
+        $param = new LikeProductCommentParam(
+            contentId: $commentId
+        );
 
         // 执行点赞
-        $result = $this->procedure->execute();
+        $result = $this->procedure->execute($param);
 
         // 验证结果
         $this->assertArrayHasKey('__message', $result);
@@ -107,10 +110,12 @@ final class LikeProductCommentTest extends AbstractProcedureTestCase
         // 设置参数
         $commentId = $comment->getId();
         $this->assertNotNull($commentId, 'Comment ID should not be null after persist and flush');
-        $this->procedure->contentId = $commentId;
+        $param = new LikeProductCommentParam(
+            contentId: $commentId
+        );
 
         // 执行取消点赞
-        $result = $this->procedure->execute();
+        $result = $this->procedure->execute($param);
 
         // 验证结果
         $this->assertArrayHasKey('__message', $result);
@@ -131,20 +136,24 @@ final class LikeProductCommentTest extends AbstractProcedureTestCase
         $user = $this->createNormalUser('test@example.com', 'password123');
         $this->setAuthenticatedUserDirect($user);
 
-        $this->procedure->contentId = '999999';
+        $param = new LikeProductCommentParam(
+            contentId: '999999'
+        );
 
         $this->expectException(ApiException::class);
         $this->expectExceptionMessage('不存在评论');
-        $this->procedure->execute();
+        $this->procedure->execute($param);
     }
 
     public function testExecuteWithoutAuthentication(): void
     {
-        $this->procedure->contentId = '12345';
+        $param = new LikeProductCommentParam(
+            contentId: '12345'
+        );
 
         $this->expectException(ApiException::class);
         $this->expectExceptionMessage('用户未登录');
-        $this->procedure->execute();
+        $this->procedure->execute($param);
     }
 
     public function testExecuteToggleLikeStatus(): void
@@ -171,18 +180,20 @@ final class LikeProductCommentTest extends AbstractProcedureTestCase
         // 设置参数
         $commentId = $comment->getId();
         $this->assertNotNull($commentId, 'Comment ID should not be null after persist and flush');
-        $this->procedure->contentId = $commentId;
+        $param = new LikeProductCommentParam(
+            contentId: $commentId
+        );
 
         // 第一次执行 - 点赞
-        $result1 = $this->procedure->execute();
+        $result1 = $this->procedure->execute($param);
         $this->assertEquals('点赞成功', $result1['__message']);
 
         // 第二次执行 - 取消点赞
-        $result2 = $this->procedure->execute();
+        $result2 = $this->procedure->execute($param);
         $this->assertEquals('取消点赞成功', $result2['__message']);
 
         // 第三次执行 - 再次点赞
-        $result3 = $this->procedure->execute();
+        $result3 = $this->procedure->execute($param);
         $this->assertEquals('点赞成功', $result3['__message']);
     }
 

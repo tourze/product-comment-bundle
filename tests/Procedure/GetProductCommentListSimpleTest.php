@@ -10,7 +10,8 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Tourze\JsonRPC\Core\Exception\ApiException;
-use Tourze\JsonRPC\Core\Tests\AbstractProcedureTestCase;
+use Tourze\PHPUnitJsonRPC\AbstractProcedureTestCase;
+use Tourze\ProductCommentBundle\Param\GetProductCommentListParam;
 use Tourze\ProductCommentBundle\Procedure\GetProductCommentList;
 use Tourze\ProductCoreBundle\Entity\Spu;
 use Tourze\ProductCoreBundle\Enum\SpuState;
@@ -44,11 +45,13 @@ final class GetProductCommentListSimpleTest extends AbstractProcedureTestCase
         self::getEntityManager()->flush();
 
         // 设置参数
-        $this->procedure->productId = (string) $spu->getId();
-        $this->procedure->currentPage = 1;
-        $this->procedure->pageSize = 10;
+        $param = new GetProductCommentListParam(
+            productId: (string) $spu->getId(),
+            currentPage: 1,
+            pageSize: 10
+        );
 
-        $result = $this->procedure->execute();
+        $result = $this->procedure->execute($param);
 
         $this->assertArrayHasKey('list', $result);
         $this->assertArrayHasKey('pagination', $result);
@@ -63,12 +66,14 @@ final class GetProductCommentListSimpleTest extends AbstractProcedureTestCase
         $this->setAuthenticatedUserDirect($user);
 
         // 设置参数 - 使用无效的商品ID格式
-        $this->procedure->productId = 'invalid_id';
-        $this->procedure->currentPage = 1;
-        $this->procedure->pageSize = 10;
+        $param = new GetProductCommentListParam(
+            productId: 'invalid_id',
+            currentPage: 1,
+            pageSize: 10
+        );
 
         $this->expectException(ApiException::class);
-        $this->procedure->execute();
+        $this->procedure->execute($param);
     }
 
     public function testPaginationParameters(): void
@@ -86,11 +91,13 @@ final class GetProductCommentListSimpleTest extends AbstractProcedureTestCase
         self::getEntityManager()->flush();
 
         // 设置参数
-        $this->procedure->productId = (string) $spu->getId();
-        $this->procedure->currentPage = 2;
-        $this->procedure->pageSize = 5;
+        $param = new GetProductCommentListParam(
+            productId: (string) $spu->getId(),
+            currentPage: 2,
+            pageSize: 5
+        );
 
-        $result = $this->procedure->execute();
+        $result = $this->procedure->execute($param);
 
         $this->assertArrayHasKey('pagination', $result);
         $this->assertIsArray($result['pagination']);

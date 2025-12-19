@@ -13,7 +13,7 @@ use Tourze\ProductCommentBundle\Entity\CommentLikeLog;
 
 #[When(env: 'test')]
 #[When(env: 'dev')]
-class CommentLikeLogFixtures extends Fixture
+final class CommentLikeLogFixtures extends Fixture
 {
     public const COMMENT_LIKE_LOG_REFERENCE_PREFIX = 'comment_like_log_';
     public const COMMENT_LIKE_LOG_COUNT = 50;

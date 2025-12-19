@@ -5,14 +5,15 @@ declare(strict_types=1);
 namespace Tourze\ProductCommentBundle\Controller\Admin;
 
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\Persistence\ManagerRegistry;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminAction;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminCrud;
+use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
+use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
-use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Contracts\Field\FieldInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
@@ -394,7 +395,7 @@ final class ProductCommentCrudController extends AbstractCrudController
 
         $entity->setState(CommentStateEnum::APPROVED);
 
-        /** @var \Doctrine\Persistence\ManagerRegistry $doctrine */
+        /** @var ManagerRegistry $doctrine */
         $doctrine = $this->container->get('doctrine');
         $doctrine->getManager()->flush();
 
@@ -416,7 +417,7 @@ final class ProductCommentCrudController extends AbstractCrudController
 
         $entity->setState(CommentStateEnum::REJECTED);
 
-        /** @var \Doctrine\Persistence\ManagerRegistry $doctrine */
+        /** @var ManagerRegistry $doctrine */
         $doctrine = $this->container->get('doctrine');
         $doctrine->getManager()->flush();
 
@@ -438,7 +439,7 @@ final class ProductCommentCrudController extends AbstractCrudController
 
         $entity->setIsGoods(1);
 
-        /** @var \Doctrine\Persistence\ManagerRegistry $doctrine */
+        /** @var ManagerRegistry $doctrine */
         $doctrine = $this->container->get('doctrine');
         $doctrine->getManager()->flush();
 
@@ -460,7 +461,7 @@ final class ProductCommentCrudController extends AbstractCrudController
 
         $entity->setIsGoods(0);
 
-        /** @var \Doctrine\Persistence\ManagerRegistry $doctrine */
+        /** @var ManagerRegistry $doctrine */
         $doctrine = $this->container->get('doctrine');
         $doctrine->getManager()->flush();
 
